@@ -22,6 +22,13 @@ exclude = ["browser_profile", ".git", "__pycache__", "build", "dist"]
 [tool.ruff.lint.mccabe]
 max-complexity = 20
 
+[tool.ruff.lint.per-file-ignores]
+# These are all small CLI entry points whose entire job is printing to the console
+# (login instructions, the raw usage JSON, a fatal error) -- that IS the interface,
+# not debug leftovers. Same exemption class as pyutilz's notebook_init.py/decodo.py.
+"fetch_usage.py" = ["T201"]
+"monitor.py" = ["T201"]
+
 [tool.codespell]
 ignore-words-list = "claude"
 skip = "browser_profile,*.log,*.json"

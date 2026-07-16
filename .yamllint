@@ -1,0 +1,13 @@
+---
+# yamllint config mirrors [tool.black]/[tool.ruff] line-length = 160 in pyproject.toml,
+# same rationale as pyutilz's .yamllint: stops flagging every workflow-comment line as
+# an "error" under yamllint's 80-char default.
+extends: default
+
+rules:
+  line-length:
+    max: 160
+  document-start: disable
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false
