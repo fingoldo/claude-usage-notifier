@@ -1,0 +1,5 @@
+.env
+browser_profile/
+state.json
+monitor.log
+__pycache__/

@@ -1,0 +1,30 @@
+[project]
+name = "claude-usage-notifier"
+version = "0.1.0"
+description = "Monitors claude.ai's weekly usage limit and alerts across Telegram, email, OS notification, and sound if it resets early."
+requires-python = ">=3.10"
+dependencies = [
+    "playwright>=1.45",
+    "python-telegram-bot>=21.0",
+    "python-dotenv>=1.0",
+    "plyer>=2.1",
+]
+
+[tool.black]
+line-length = 160
+target-version = ["py310", "py311", "py312", "py313", "py314"]
+
+[tool.ruff]
+extend = "../py-ci-shared/configs/ruff-base.toml"
+target-version = "py310"
+exclude = ["browser_profile", ".git", "__pycache__", "build", "dist"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 20
+
+[tool.codespell]
+ignore-words-list = "claude"
+skip = "browser_profile,*.log,*.json"
+
+[tool.deptry]
+exclude = ["browser_profile", ".venv", "build", "dist"]

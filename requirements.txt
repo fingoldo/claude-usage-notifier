@@ -1,0 +1,4 @@
+playwright>=1.45
+python-telegram-bot>=21.0
+python-dotenv>=1.0
+plyer>=2.1
