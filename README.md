@@ -83,6 +83,7 @@ if importing on a different machine.
 
 ## Configuration
 
+Copy [`.env.example`](.env.example) to `.env` and fill in your own values.
 All settings live in `.env` (never committed — see `.gitignore`):
 
 | Variable | Purpose |
