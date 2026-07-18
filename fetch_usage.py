@@ -58,11 +58,11 @@ def ensure_logged_in() -> None:
     """Opens a plain, non-automated Chrome window for a one-time manual login."""
     chrome_path = _find_chrome()
     config.BROWSER_PROFILE_DIR.mkdir(parents=True, exist_ok=True)
-    proc = subprocess.Popen(
-        [chrome_path, f"--user-data-dir={config.BROWSER_PROFILE_DIR}", "https://claude.ai/new"]
+    proc = subprocess.Popen([chrome_path, f"--user-data-dir={config.BROWSER_PROFILE_DIR}", "https://claude.ai/new"])
+    print(
+        "A normal Chrome window has opened. Log in to claude.ai (Google login included), "
+        "then close that Chrome window completely, and press Enter here to continue..."
     )
-    print("A normal Chrome window has opened. Log in to claude.ai (Google login included), "
-          "then close that Chrome window completely, and press Enter here to continue...")
     input()
     proc.terminate()
 
@@ -90,10 +90,7 @@ def fetch_usage() -> dict:
             except Exception:
                 body_preview = page.inner_text("body")[:300]
                 if "Log in" in body_preview or "log-in" in page.url:
-                    raise RuntimeError(
-                        "Session expired, redirected to login. "
-                        "Run `python fetch_usage.py --login` to log in again."
-                    )
+                    raise RuntimeError("Session expired, redirected to login. " "Run `python fetch_usage.py --login` to log in again.")
                 raise RuntimeError(f"Usage endpoint did not return JSON: {body_preview}")
 
             body_text = page.inner_text("body")

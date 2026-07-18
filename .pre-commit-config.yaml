@@ -8,9 +8,13 @@ repos:
         types: [python]
         stages: [pre-commit]
 
-      - id: black
-        name: "black"
-        entry: python -m black
+      - id: black-filtered-blocking
+        name: "black (filtered, blocking)"
+        # Filtered wrapper, not raw black -- mirrors every other repo in this org (mlframe,
+        # pyutilz, llm_bench, algopacksimple, glossum_backend_scripts). Raw black additionally
+        # rewrites two diff classes (arg/collection-list explosion, blank-line insertion) that
+        # the shared convention deliberately excludes; switched 2026-07-18.
+        entry: python -m py_ci_shared.black_filtered_apply --config pyproject.toml --check
         language: system
         types: [python]
         stages: [pre-commit]

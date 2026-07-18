@@ -83,8 +83,7 @@ def test_alert() -> None:
     """Fires a fake alert through every channel, to verify delivery end-to-end."""
     fire_alert(
         "Claude: подозрительный сброс лимита (ТЕСТ)",
-        "Это тестовое сообщение от claude_notifier: Telegram, email, системное "
-        "уведомление, звук и лог-файл должны были сработать все четыре.",
+        "Это тестовое сообщение от claude_notifier: Telegram, email, системное " "уведомление, звук и лог-файл должны были сработать все четыре.",
     )
 
 
