@@ -45,11 +45,15 @@ def _context(playwright, headless: bool):
         # on the genuine Chrome channel) and loops forever. A headed window
         # positioned off-screen uses the same rendering path as a normal tab,
         # so it clears the challenge - it's just never visible to the user.
+        # --disable-gpu forces software rendering: Windows can tear down a
+        # process's GPU device context when the desktop session locks or the
+        # display powers off, which otherwise surfaces as an unpredictable
+        # Chrome launch/render failure under Task Scheduler on a locked machine.
         return playwright.chromium.launch_persistent_context(
             str(config.BROWSER_PROFILE_DIR),
             headless=False,
             channel="chrome",
-            args=["--window-position=-32000,-32000", "--window-size=1200,900"],
+            args=["--window-position=-32000,-32000", "--window-size=1200,900", "--disable-gpu"],
         )
     return playwright.chromium.launch_persistent_context(
         str(config.BROWSER_PROFILE_DIR),

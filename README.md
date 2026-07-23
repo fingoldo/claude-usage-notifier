@@ -80,6 +80,14 @@ repeats every `FAILURE_ALERT_REPEAT_EVERY` checks (default 18) while it stays
 broken. `fetch_usage()` also retries a failed attempt a couple of times on
 its own first, to ride out transient issues like a locked desktop session.
 
+Two further mitigations against a locked/sleeping Windows session specifically:
+
+- Chrome launches with `--disable-gpu` (software rendering) — Windows can tear
+  down a process's GPU device context on screen lock or display power-off,
+  which otherwise surfaces as an unpredictable render/launch failure.
+- The Task Scheduler task has `WakeToRun` enabled, so it fires even if the
+  machine was asleep, rather than silently missing the trigger entirely.
+
 ### Scheduling
 
 Instead of `--loop`, you can register a periodic Windows Task Scheduler job,
