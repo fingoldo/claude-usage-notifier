@@ -68,9 +68,36 @@ def play_alert_sound() -> None:
         logger.error("Sound alert failed: %s", e)
 
 
+def play_info_sound() -> None:
+    """Quieter, non-alarming sound for a legitimate (expected) weekly reset."""
+    system = platform.system()
+    try:
+        if system == "Windows":
+            import winsound
+
+            winsound.MessageBeep(winsound.MB_ICONASTERISK)
+        elif system == "Darwin":
+            subprocess.run(["afplay", "/System/Library/Sounds/Glass.aiff"], check=False)
+        else:
+            subprocess.run(["paplay", "/usr/share/sounds/freedesktop/stereo/message.oga"], check=False)
+    except Exception as e:
+        logger.error("Sound info failed: %s", e)
+
+
 def fire_alert(title: str, message: str) -> None:
+    """Full alert for something suspicious: every channel (Telegram, email,
+    system notification, sound) plus a log entry."""
     logger.warning(message)
     send_telegram(message)
     send_email(title, message)
     send_system_notification(title, message)
     play_alert_sound()
+
+
+def fire_info_notification(title: str, message: str) -> None:
+    """Lighter notice for an expected event (e.g. the weekly limit resetting
+    normally): system notification + a distinct, quieter sound, no
+    Telegram/email -- and a log entry, same as fire_alert."""
+    logger.info(message)
+    send_system_notification(title, message)
+    play_info_sound()

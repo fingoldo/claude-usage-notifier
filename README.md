@@ -60,10 +60,14 @@ python monitor.py --test-alert   # fire a fake alert through every channel, to v
 
 ### Alert condition
 
-If `seven_day.utilization` drops by more than `DROP_THRESHOLD` percentage
-points compared to the last saved snapshot, **and** `resets_at` did *not*
-advance to a new future date (i.e. it stayed the same or moved backwards),
-that's a mid-week reset anomaly — fire the alert on every channel.
+Whenever `seven_day.utilization` drops by more than `DROP_THRESHOLD`
+percentage points compared to the last saved snapshot:
+
+- If `resets_at` did *not* advance to a new future date (i.e. it stayed the
+  same or moved backwards) — that's a mid-week reset anomaly, fire the full
+  alert on every channel (Telegram, email, system notification, sound, log).
+- If `resets_at` *did* advance — that's a legitimate weekly reset. Just a
+  system notification and a quieter, distinct sound, no Telegram/email.
 
 Sitting at 100% for hours near the end of the week (right up to `resets_at`)
 is expected, not a bug — the limit simply hasn't rolled over yet.

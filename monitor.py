@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 import config
 import state_store
 from fetch_usage import fetch_usage
-from notify import fire_alert, logger
+from notify import fire_alert, fire_info_notification, logger
 
 
 def _parse_dt(value: str) -> datetime:
@@ -67,6 +67,11 @@ def check_once() -> None:
                 f"до окончания учетной недели!"
             )
             fire_alert("Claude: подозрительный сброс лимита", message)
+        elif dropped and reset_date_advanced:
+            # A legitimate weekly reset (resets_at moved forward to next week) --
+            # worth a quiet heads-up, not the full Telegram/email alert treatment.
+            message = f"Лимит использования ИИ-моделей сбросился штатно: {old_utilization}% -> {new_utilization}%, следующий сброс {new_resets_at}."
+            fire_info_notification("Claude: штатный сброс лимита", message)
         else:
             logger.info(
                 "OK: utilization %s%% -> %s%%, resets_at %s -> %s",
