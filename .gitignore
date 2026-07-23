@@ -1,5 +1,6 @@
 .env
 browser_profile/
 state.json
+failures.json
 monitor.log
 __pycache__/

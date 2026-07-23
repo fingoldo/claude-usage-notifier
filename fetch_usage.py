@@ -7,7 +7,7 @@ Google") aggressively blocks automation-driven browsers, so the one-time login
 step launches a genuinely manual Chrome window (plain subprocess, no CDP, no
 Playwright involved) against a dedicated profile directory. Once that profile
 holds a valid session, later runs drive it headlessly through Playwright only
-to load the usage page -- that step merely needs to clear Cloudflare's JS
+to load the usage page - that step merely needs to clear Cloudflare's JS
 challenge, which a real Chromium engine does on its own without tripping
 Google's much stricter bot detection.
 """
@@ -16,10 +16,14 @@ import json
 import os
 import subprocess
 import sys
+import time
 
 from playwright.sync_api import sync_playwright
 
 import config
+
+FETCH_ATTEMPTS = 3
+RETRY_DELAY_SECONDS = 10
 
 CHROME_CANDIDATES = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -40,7 +44,7 @@ def _context(playwright, headless: bool):
         # Cloudflare's managed challenge detects real headless rendering (even
         # on the genuine Chrome channel) and loops forever. A headed window
         # positioned off-screen uses the same rendering path as a normal tab,
-        # so it clears the challenge -- it's just never visible to the user.
+        # so it clears the challenge - it's just never visible to the user.
         return playwright.chromium.launch_persistent_context(
             str(config.BROWSER_PROFILE_DIR),
             headless=False,
@@ -67,7 +71,20 @@ def ensure_logged_in() -> None:
     proc.terminate()
 
 
-def fetch_usage() -> dict:
+def _clear_stale_lock() -> None:
+    """Removes Chrome's user-data-dir singleton lock file.
+
+    A prior run that got killed mid-launch (e.g. Task Scheduler firing a new
+    instance into a session-locked desktop) can leave this behind, which then
+    makes every subsequent launch_persistent_context() fail immediately - not
+    a transient issue a plain retry would fix on its own.
+    """
+    lock_path = config.BROWSER_PROFILE_DIR / "lockfile"
+    if lock_path.exists():
+        lock_path.unlink(missing_ok=True)
+
+
+def _fetch_usage_once() -> dict:
     """Returns the parsed usage JSON, raising if the session is not authenticated.
 
     Uses a real page navigation (not a raw HTTP request) so headless Chromium's
@@ -97,6 +114,28 @@ def fetch_usage() -> dict:
             return json.loads(body_text)
         finally:
             context.close()
+
+
+def fetch_usage() -> dict:
+    """Retries _fetch_usage_once a few times before giving up.
+
+    Covers transient failures - a session-locked desktop denying window
+    creation, a leftover profile lock from a killed prior run, a slow
+    Cloudflare challenge - that a single attempt wouldn't survive but a second
+    one moments later usually does.
+    """
+    last_error: Exception | None = None
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
+        try:
+            return _fetch_usage_once()
+        except RuntimeError:  # noqa: PERF203 - retry-until-success loop; the try/except IS the control flow
+            raise  # session/auth problems won't fix themselves on retry
+        except Exception as e:
+            last_error = e
+            if attempt < FETCH_ATTEMPTS:
+                _clear_stale_lock()
+                time.sleep(RETRY_DELAY_SECONDS)
+    raise RuntimeError(f"Failed to fetch usage after {FETCH_ATTEMPTS} attempts: {last_error}") from last_error
 
 
 if __name__ == "__main__":

@@ -26,4 +26,10 @@ DROP_THRESHOLD = float(os.environ.get("DROP_THRESHOLD", "1.0"))
 
 BROWSER_PROFILE_DIR = BASE_DIR / "browser_profile"
 STATE_FILE = BASE_DIR / "state.json"
+FAILURE_FILE = BASE_DIR / "failures.json"
 LOG_FILE = BASE_DIR / "monitor.log"
+
+# Consecutive failed checks (each ~CHECK_INTERVAL_MINUTES apart) before the first
+# "monitoring is down" alert fires, and how often to repeat it while still failing.
+FAILURE_ALERT_THRESHOLD = int(os.environ.get("FAILURE_ALERT_THRESHOLD", "3"))
+FAILURE_ALERT_REPEAT_EVERY = int(os.environ.get("FAILURE_ALERT_REPEAT_EVERY", "18"))

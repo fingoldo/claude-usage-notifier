@@ -16,7 +16,6 @@ Run in a self-looping process instead:
 """
 
 import argparse
-import logging
 import sys
 import time
 from datetime import datetime, timezone
@@ -71,7 +70,10 @@ def check_once() -> None:
         else:
             logger.info(
                 "OK: utilization %s%% -> %s%%, resets_at %s -> %s",
-                old_utilization, new_utilization, old_resets_at, new_resets_at,
+                old_utilization,
+                new_utilization,
+                old_resets_at,
+                new_resets_at,
             )
     else:
         logger.info("First run, no baseline yet. utilization=%s%% resets_at=%s", new_utilization, new_resets_at)
@@ -87,6 +89,34 @@ def test_alert() -> None:
     )
 
 
+def run_check() -> None:
+    """Runs one check, guaranteeing the outcome is always logged (and alerted on
+    repeated failure) even under a one-shot invocation with no surrounding loop -
+    e.g. Windows Task Scheduler, whose pythonw.exe wrapper swallows stdout/stderr,
+    so an unhandled exception here would otherwise vanish silently and freeze
+    state.json at its last good value with zero visibility.
+    """
+    try:
+        check_once()
+    except Exception:
+        logger.exception("Check failed")
+        count = state_store.load_failure_count() + 1
+        state_store.save_failure_count(count)
+        if count == config.FAILURE_ALERT_THRESHOLD or (
+            count > config.FAILURE_ALERT_THRESHOLD and (count - config.FAILURE_ALERT_THRESHOLD) % config.FAILURE_ALERT_REPEAT_EVERY == 0
+        ):
+            fire_alert(
+                "Claude: мониторинг лимита не работает",
+                f"claude_notifier не смог получить данные использования {count} проверок подряд "
+                f"(~{count * config.CHECK_INTERVAL_MINUTES:.0f} мин). Возможно истекла сессия - "
+                "запусти `python fetch_usage.py --login`. Подробности в monitor.log.",
+            )
+    else:
+        if state_store.load_failure_count() > 0:
+            logger.info("Recovered after failures")
+            state_store.save_failure_count(0)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--loop", action="store_true", help="Keep running, checking every CHECK_INTERVAL_MINUTES")
@@ -98,14 +128,11 @@ def main() -> None:
         return
 
     if not args.loop:
-        check_once()
+        run_check()
         return
 
     while True:
-        try:
-            check_once()
-        except Exception:
-            logging.getLogger("claude_notifier").exception("Check failed")
+        run_check()
         time.sleep(config.CHECK_INTERVAL_MINUTES * 60)
 
 

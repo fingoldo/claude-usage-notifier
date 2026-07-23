@@ -65,6 +65,21 @@ points compared to the last saved snapshot, **and** `resets_at` did *not*
 advance to a new future date (i.e. it stayed the same or moved backwards),
 that's a mid-week reset anomaly — fire the alert on every channel.
 
+Sitting at 100% for hours near the end of the week (right up to `resets_at`)
+is expected, not a bug — the limit simply hasn't rolled over yet.
+
+### If the check itself fails
+
+Every run's outcome is always logged — including under a one-shot Task
+Scheduler invocation, where `pythonw.exe` swallows stdout/stderr and an
+unhandled exception would otherwise vanish silently. After
+`FAILURE_ALERT_THRESHOLD` consecutive failed checks (default 3), an alert
+fires on every channel saying monitoring itself is down (most commonly
+because the browser session expired — re-run `fetch_usage.py --login`), and
+repeats every `FAILURE_ALERT_REPEAT_EVERY` checks (default 18) while it stays
+broken. `fetch_usage()` also retries a failed attempt a couple of times on
+its own first, to ride out transient issues like a locked desktop session.
+
 ### Scheduling
 
 Instead of `--loop`, you can register a periodic Windows Task Scheduler job,
