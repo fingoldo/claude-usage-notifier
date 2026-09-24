@@ -10,12 +10,21 @@ dependencies = [
     "plyer>=2.1",
 ]
 
+[project.optional-dependencies]
+# The pre-commit hooks run these with `language: system`: `pip install -e ".[dev]"` before `pre-commit install`.
+dev = [
+    "py-ci-shared @ git+https://github.com/fingoldo/py-ci-shared@6a8e3829678dab35e21d380292f7b34ae84c8d14",  # v1.17.0
+    "ruff==0.16.1",
+]
+
 [tool.black]
 line-length = 160
 target-version = ["py310", "py311", "py312", "py313", "py314"]
 
 [tool.ruff]
-extend = "../py-ci-shared/configs/ruff-base.toml"
+# $PY_CI_SHARED_DIR, not a sibling checkout: CI's ruff-blocking workflow sets it to the pinned release, and locally
+# `python -m py_ci_shared.setup_env` persists it (or point it at the directory holding `py-ci-shared config-path ruff-base`).
+extend = "$PY_CI_SHARED_DIR/configs/ruff-base.toml"
 target-version = "py310"
 exclude = ["browser_profile", ".git", "__pycache__", "build", "dist"]
 
