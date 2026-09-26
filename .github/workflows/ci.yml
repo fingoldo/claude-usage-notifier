@@ -27,9 +27,32 @@ jobs:
           python-version: "3.11"
 
       - name: Compile all modules (syntax sanity check)
-        # No test suite (this is a small script collection, not a distributable package) --
+        # No behavioural test suite (a small script collection, not a distributable package) --
         # compileall is the cheapest real signal that every module still parses.
         run: python -m compileall -q .
+
+  meta-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: "3.11"
+
+      # The dev extra only: the meta tests never import the app, so neither its runtime deps nor the .env secrets that
+      # config.py reads at import are needed here. The repo is a flat script set with no build backend to install.
+      - name: Install the dev extra
+        run: |
+          dev="$RUNNER_TEMP/dev.txt"
+          python -c "import tomllib as t; print('\n'.join(t.load(open('pyproject.toml', 'rb'))['project']['optional-dependencies']['dev']))" > "$dev"
+          python -m pip install -r "$dev"
+
+      - name: Meta tests
+        run: python -m pytest tests -p no:cacheprovider --durations=200
 
   # Reusable lint bundles from fingoldo/py-ci-shared, every ref and py-ci-shared-ref on the same release SHA.
   ruff-blocking:
