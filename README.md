@@ -139,6 +139,10 @@ in again:
 python fetch_usage.py --login
 ```
 
+## Git hooks
+
+Hooks live in each clone's `.git`, so a fresh clone needs one command: `pip install pre-commit && pre-commit install --hook-type pre-commit --hook-type pre-push`. Commits run ruff, filtered black, codespell, detect-secrets and file checks; pushes run `compileall` (this repo has no test suite).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

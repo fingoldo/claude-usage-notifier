@@ -1,4 +1,23 @@
+# Local gates. Install once per clone: pre-commit install --hook-type pre-commit --hook-type pre-push
+# Tools run from the active interpreter (language: system), so versions are the ones installed there:
+# ruff 0.16.1, black 26.5.1 (via py_ci_shared.black_filtered_apply), codespell 2.4.2, detect-secrets 1.5.0.
+# The working tree is CRLF on Windows (core.autocrlf), the index is LF: nothing here rewrites line endings.
+default_stages: [pre-commit]
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1024']
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: ['--fix=no']
+        exclude: '\.xml$'
+
   - repo: local
     hooks:
       - id: ruff-real-bugs
@@ -18,3 +37,28 @@ repos:
         language: system
         types: [python]
         stages: [pre-commit]
+
+      # CI (lint-blocking) runs codespell over "." and README.md with this same pyproject config.
+      - id: codespell
+        name: "codespell"
+        entry: codespell --toml pyproject.toml
+        language: system
+        types_or: [python, markdown, yaml, toml]
+        stages: [pre-commit]
+
+      # Check-only: reports new high-entropy strings against .secrets.baseline, never rewrites it.
+      - id: detect-secrets
+        name: "detect-secrets (check-only)"
+        entry: detect-secrets-hook --baseline .secrets.baseline
+        language: system
+        exclude: '^(\.secrets\.baseline|audits/)'
+        stages: [pre-commit]
+
+      # CI job syntax-check (this repo has no test suite): compileall is the whole authoritative gate.
+      - id: compileall
+        name: "compileall (CI syntax-check twin; repo has no tests)"
+        entry: python -m compileall -q .
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
