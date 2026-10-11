@@ -57,14 +57,14 @@ jobs:
   # Reusable lint bundles from fingoldo/py-ci-shared, every ref and py-ci-shared-ref on the same release SHA.
   ruff-blocking:
     name: Ruff (real bugs - blocking)
-    uses: fingoldo/py-ci-shared/.github/workflows/ruff-blocking.yml@9d0cc27e67fbee91ee00b357551c130e0b59a0eb  # v1.22.4
+    uses: fingoldo/py-ci-shared/.github/workflows/ruff-blocking.yml@8c19f17a4537e66db1c86245502fc6883791d632  # v1.22.5
     with:
-      py-ci-shared-ref: "9d0cc27e67fbee91ee00b357551c130e0b59a0eb"  # v1.22.4
+      py-ci-shared-ref: "8c19f17a4537e66db1c86245502fc6883791d632"  # v1.22.5
       ignore: "C901"
 
   lint-blocking:
     name: lint + security (blocking, triaged clean)
-    uses: fingoldo/py-ci-shared/.github/workflows/lint-blocking.yml@9d0cc27e67fbee91ee00b357551c130e0b59a0eb  # v1.22.4
+    uses: fingoldo/py-ci-shared/.github/workflows/lint-blocking.yml@8c19f17a4537e66db1c86245502fc6883791d632  # v1.22.5
     with:
       source-path: "."
       codespell-paths: ". README.md"
@@ -72,7 +72,7 @@ jobs:
 
   lint-advisory:
     name: lint (advisory)
-    uses: fingoldo/py-ci-shared/.github/workflows/lint-advisory.yml@9d0cc27e67fbee91ee00b357551c130e0b59a0eb  # v1.22.4
+    uses: fingoldo/py-ci-shared/.github/workflows/lint-advisory.yml@8c19f17a4537e66db1c86245502fc6883791d632  # v1.22.5
     with:
-      py-ci-shared-ref: "9d0cc27e67fbee91ee00b357551c130e0b59a0eb"  # v1.22.4
+      py-ci-shared-ref: "8c19f17a4537e66db1c86245502fc6883791d632"  # v1.22.5
       source-path: "."
