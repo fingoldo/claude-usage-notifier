@@ -25,6 +25,8 @@ import state_store
 from fetch_usage import fetch_usage
 from notify import fire_alert, fire_info_notification, logger
 
+SECONDS_PER_MINUTE = 60
+
 
 def _parse_dt(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -138,7 +140,7 @@ def main() -> None:
 
     while True:
         run_check()
-        time.sleep(config.CHECK_INTERVAL_MINUTES * 60)
+        time.sleep(config.CHECK_INTERVAL_MINUTES * SECONDS_PER_MINUTE)
 
 
 if __name__ == "__main__":

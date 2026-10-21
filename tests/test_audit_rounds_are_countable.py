@@ -7,6 +7,7 @@ the shared parser finds. The first dated round is then held to the full format f
 
 from __future__ import annotations
 
+import functools
 import re
 from pathlib import Path
 
@@ -17,6 +18,7 @@ AUDITS = Path(__file__).resolve().parents[1] / "audits"
 DATED = re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 
+@functools.cache
 def _round_dirs() -> list[Path]:
     return [d for parent in (AUDITS, AUDITS / "implemented") if parent.is_dir() for d in parent.iterdir() if d.is_dir() and DATED.match(d.name)]
 

@@ -53,35 +53,30 @@ def send_system_notification(title: str, message: str) -> None:
         logger.error("System notification failed: %s", e)
 
 
-def play_alert_sound() -> None:
+def _play_sound(windows_beep: int, mac_sound: str, linux_sound: str, failure: str) -> None:
     system = platform.system()
     try:
         if system == "Windows":
             import winsound
 
-            winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+            winsound.MessageBeep(windows_beep)
         elif system == "Darwin":
-            subprocess.run(["afplay", "/System/Library/Sounds/Sosumi.aiff"], check=False)
+            subprocess.run(["afplay", mac_sound], check=False)
         else:
-            subprocess.run(["paplay", "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"], check=False)
+            subprocess.run(["paplay", linux_sound], check=False)
     except Exception as e:
-        logger.error("Sound alert failed: %s", e)
+        logger.error("%s: %s", failure, e)
+
+
+def play_alert_sound() -> None:
+    # MB_ICONEXCLAMATION; winsound exists only on Windows, so the value is spelled out here.
+    _play_sound(48, "/System/Library/Sounds/Sosumi.aiff", "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga", "Sound alert failed")
 
 
 def play_info_sound() -> None:
     """Quieter, non-alarming sound for a legitimate (expected) weekly reset."""
-    system = platform.system()
-    try:
-        if system == "Windows":
-            import winsound
-
-            winsound.MessageBeep(winsound.MB_ICONASTERISK)
-        elif system == "Darwin":
-            subprocess.run(["afplay", "/System/Library/Sounds/Glass.aiff"], check=False)
-        else:
-            subprocess.run(["paplay", "/usr/share/sounds/freedesktop/stereo/message.oga"], check=False)
-    except Exception as e:
-        logger.error("Sound info failed: %s", e)
+    # MB_ICONASTERISK; see play_alert_sound.
+    _play_sound(64, "/System/Library/Sounds/Glass.aiff", "/usr/share/sounds/freedesktop/stereo/message.oga", "Sound info failed")
 
 
 def fire_alert(title: str, message: str) -> None:

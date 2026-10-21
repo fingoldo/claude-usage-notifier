@@ -14,6 +14,7 @@ dependencies = [
 # The pre-commit hooks run these with `language: system`: `pip install -e ".[dev]"` before `pre-commit install`.
 dev = [
     "py-ci-shared @ git+https://github.com/fingoldo/py-ci-shared@fd2f017ba28a778a006ce30f38369e4aa19c27ca",  # v1.22.13
+    "pyutilz @ git+https://github.com/fingoldo/pyutilz@7f4c767541c7edcfc19cb733a259d93d5073c1f9",  # code_audit, the shared scanner
     "ruff==0.16.10",
     "pytest>=8.0",
 ]

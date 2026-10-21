@@ -66,7 +66,7 @@ def ensure_logged_in() -> None:
     """Opens a plain, non-automated Chrome window for a one-time manual login."""
     chrome_path = _find_chrome()
     config.BROWSER_PROFILE_DIR.mkdir(parents=True, exist_ok=True)
-    proc = subprocess.Popen([chrome_path, f"--user-data-dir={config.BROWSER_PROFILE_DIR}", "https://claude.ai/new"])
+    proc = subprocess.Popen([chrome_path, f"--user-data-dir={config.BROWSER_PROFILE_DIR}", "https://claude.ai/new"])  # audit-exempt: resource_handle_safety -- a GUI window the user closes by hand; there is no handle to release and it must outlive this call
     print(
         "A normal Chrome window has opened. Log in to claude.ai (Google login included), "
         "then close that Chrome window completely, and press Enter here to continue..."
