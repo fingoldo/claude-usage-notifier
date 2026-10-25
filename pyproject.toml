@@ -13,7 +13,7 @@ dependencies = [
 [project.optional-dependencies]
 # The pre-commit hooks run these with `language: system`: `pip install -e ".[dev]"` before `pre-commit install`.
 dev = [
-    "py-ci-shared @ git+https://github.com/fingoldo/py-ci-shared@cf55a29bdda6cc1bd049bc068376405bd1b7678d",  # v1.23.3, carries the code_audit scanners
+    "py-ci-shared @ git+https://github.com/fingoldo/py-ci-shared@905de1ad959b1d9125359d6bb9f907814881493b",  # v1.23.5, carries the code_audit scanners
     "ruff==0.16.10",
     "pytest>=8.0",
 ]
