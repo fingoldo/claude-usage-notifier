@@ -45,3 +45,6 @@ skip = "browser_profile,*.log,*.json"
 
 [tool.deptry]
 exclude = ["browser_profile", ".venv", "build", "dist"]
+
+[tool.pytest.ini_options]
+addopts = "--durations=200 -p no:cacheprovider"
